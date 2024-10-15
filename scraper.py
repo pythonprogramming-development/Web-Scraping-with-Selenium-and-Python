@@ -38,7 +38,37 @@ def find_element(driver, strategy, value):
         print(f"Error finding element: {e}")
         return None
 
-# Function to scrape a webpage
+# Function to scrape content from the current page
+def scrape_current_page(driver):
+    try:
+        exercise1_card = find_element(driver, 'class_name', 'w-full.rounded.border')
+        if exercise1_card:
+            print("Card content:", exercise1_card.text)
+        else:
+            print("Element not found.")
+    except Exception as e:
+        print(f"Error scraping page: {e}")
+
+# Function to handle pagination
+def handle_pagination(driver):
+    while True:
+        try:
+            # Scrape the current page
+            scrape_current_page(driver)
+
+            # Find the "Next" button and click it if it exists
+            next_button = find_element(driver, 'xpath', '//a[@rel="next"]')
+            if next_button:
+                next_button.click()
+                WebDriverWait(driver, 10).until(EC.staleness_of(next_button))  # Wait until the next page loads
+            else:
+                print("No more pages to scrape.")
+                break  # Exit the loop if there's no next button
+        except Exception as e:
+            print(f"Error navigating pages: {e}")
+            break
+
+# Function to scrape a website with pagination
 def scrape_website():
     driver = init_driver(headless=True)
     
@@ -46,17 +76,8 @@ def scrape_website():
         # Open the target website
         driver.get('https://scrapingclub.com/')
         
-        # Find elements using different strategies
-        exercise1_card = find_element(driver, 'class_name', 'w-full.rounded.border')
-        # you can also use:
-        # exercise1_card = find_element(driver, 'css_selector', '.w-full.rounded.border')
-        # exercise1_card = find_element(driver, 'xpath', '/html/body/div[3]/div[2]/div/div[1]')
-        
-        # If the element is found, print its text or other attributes
-        if exercise1_card:
-            print("Card content:", exercise1_card.text)
-        else:
-            print("Element not found.")
+        # Scrape the first page and handle pagination
+        handle_pagination(driver)
         
     except Exception as e:
         # Catch and print any errors during the scraping process
