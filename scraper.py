@@ -46,24 +46,21 @@ def find_element(driver, strategy, value):
 # Function to scrape a webpage
 def scrape_website():
     driver = init_driver(headless=True)
-    websiteInp = input("Enter URL for desired website to scrape: ")
-    elementInp = input("Enter the class_name of the desired element to scrape: ")
     try:
         # Open the target website
-        driver.get(websiteInp)
-
+        driver.get('https://scrapingclub.com/')
+        
         # Find elements using different strategies
-        exercise1_card = find_element(driver, "class_name", elementInp)
+        exercise1_card = find_element(driver, 'class_name', 'w-full.rounded.border')
         # you can also use:
         # exercise1_card = find_element(driver, 'css_selector', '.w-full.rounded.border')
         # exercise1_card = find_element(driver, 'xpath', '/html/body/div[3]/div[2]/div/div[1]')
-
+        
         # If the element is found, print its text or other attributes
         if exercise1_card:
             print("Card content:", exercise1_card.text)
         else:
             print("Element not found.")
-
     except Exception as e:
         # Catch and print any errors during the scraping process
         print(f"An error occurred: {e}")
