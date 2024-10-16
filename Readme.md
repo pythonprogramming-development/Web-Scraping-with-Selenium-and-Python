@@ -149,4 +149,4 @@ if (youEnjoyed) {
 
 ---
 
-## appy coding fellas!!💕✨
+## Happy coding fellas!!💕✨
