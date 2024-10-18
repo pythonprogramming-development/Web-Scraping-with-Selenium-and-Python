@@ -1,9 +1,21 @@
+import re
+from urllib.parse import urlparse  # Import urlparse
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+def is_valid_url(url):  # Include this function
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
+
+def sanitize_locator(locator):   # Include this function
+    sanitized_locator = re.sub(r"[^a-zA-Z0-9.#\[\]]", "", locator)
+    return sanitized_locator
 
 # Function to initialize the Selenium WebDriver
 def init_driver(headless=True):
@@ -46,8 +58,16 @@ def find_element(driver, strategy, value):
 # Function to scrape a webpage
 def scrape_website():
     driver = init_driver(headless=True)
-    websiteInp = input("Enter URL for desired website to scrape: ")
-    elementInp = input("Enter the class_name of the desired element to scrape: ")
+
+    while True: # loop until valid url is entered
+        websiteInp = input("Enter URL for desired website to scrape: ")
+         if is_valid_url(websiteInp):  
+            break
+        else:
+            print("Invalid URL.  Please enter a valid URL.")
+    
+    elementInp = input("Enter the class_name (alphanumeric, ., #, [] allowed): ")
+    sanitized_element = sanitize_locator(elementInp) # Sanitize the input
     # testWebsite = "https://scrapingclub.com/"
     # testElement = "w-full.rounded.border"
     try:
@@ -58,7 +78,7 @@ def scrape_website():
 
         # Find elements using different strategies
         exercise1_card = find_element(
-            driver, "class_name", elementInp
+            driver, "class_name", sanitized_element
         )  # Use testElement here instead of elementInp
         # you can also use:
         # exercise1_card = find_element(driver, 'css_selector', '.w-full.rounded.border')
