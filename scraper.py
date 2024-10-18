@@ -29,19 +29,22 @@ def find_element(driver, strategy, value):
     wait = WebDriverWait(driver, 10)
     try:
         if strategy == "class_name":
-            return wait.until(EC.presence_of_element_located((By.CLASS_NAME, value)))
+            locator = (By.CLASS_NAME, value)
         elif strategy == "css_selector":
-            return wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, value)))
+            locator = (By.CSS_SELECTOR, value)
         elif strategy == "xpath":
-            return wait.until(EC.presence_of_element_located((By.XPATH, value)))
+            locator = (By.XPATH, value)
         else:
             raise ValueError(
-                "Invalid strategy. Use 'class_name', 'css_selector', or 'xpath'."
+                f"Invalid strategy '{strategy}'. Use 'class_name', 'css_selector', or 'xpath'."
             )
-    except Exception as e:
-        print(f"Error finding element: {e}")
-        return None
 
+        return wait.until(EC.presence_of_element_located(locator))
+
+    except Exception as e:
+        error_message = f"Error finding element using {strategy} with value '{value}': {e}"
+        print(error_message)
+        raise
 
 # Function to scrape a webpage
 def scrape_website():
@@ -57,9 +60,7 @@ def scrape_website():
         )  # Use testWebsite variable here for texting purposes, instead of websiteInp
 
         # Find elements using different strategies
-        exercise1_card = find_element(
-            driver, "class_name", elementInp
-        )  # Use testElement here instead of elementInp
+        exercise1_card = find_element(driver, "class_name", elementInp) # Use testElement here instead of elementInp
         # you can also use:
         # exercise1_card = find_element(driver, 'css_selector', '.w-full.rounded.border')
         # exercise1_card = find_element(driver, 'xpath', '/html/body/div[3]/div[2]/div/div[1]')
@@ -70,12 +71,12 @@ def scrape_website():
         else:
             print("Element not found.")
 
-    except Exception as e:
-        # Catch and print any errors during the scraping process
-        print(f"An error occurred: {e}")
+    except ValueError as e: # handle specifically invalid strategy provided by user
+        print(e)
+    except Exception as e: # Handles other exceptions from find_element (like TimeoutException)
+        pass # No need to print here as find_element already did.
 
     finally:
-        # Release resources and close the browser
         driver.quit()
 
 
