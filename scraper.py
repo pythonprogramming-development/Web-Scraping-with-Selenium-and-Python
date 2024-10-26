@@ -55,7 +55,13 @@ def scrape_website():
 
         # Find elements
         elements = find_elements(driver, "class_name", elementInp)
-
+  # testWebsite = "https://scrapingclub.com/"
+    # testElement = "w-full.rounded.border"
+# exercise1_card = find_element(driver, "class_name", elementInp) # Use testElement here instead of elementInp
+   # you can also use:
+        # exercise1_card = find_element(driver, 'css_selector', '.w-full.rounded.border')
+        # exercise1_card = find_element(driver, 'xpath', '/html/body/div[3]/div[2]/div/div[1]')
+        
         # Extract and format data
         data = [{"content": el.text} for el in elements if el.text]
         
