@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.2",
+    "@radix-ui/react-select": "^2.1.2",
+    "lucide-react": "^0.453.0"
+  }
+}
