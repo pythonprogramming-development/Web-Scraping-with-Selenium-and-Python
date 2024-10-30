@@ -6,14 +6,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-# Configure logging for better traceability
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class InvalidStrategyError(Exception):
     """Custom exception for invalid element strategy."""
     pass
 
-# Function to initialize the Selenium WebDriver
 def init_driver(headless=True):
     chrome_options = Options()
     if headless:
@@ -27,7 +25,6 @@ def init_driver(headless=True):
     logging.info("WebDriver initialized successfully.")
     return driver
 
-# Function to find an element using different strategies
 def find_element(driver, strategy, value):
     wait = WebDriverWait(driver, 10)
     try:
@@ -50,7 +47,6 @@ def find_element(driver, strategy, value):
         logging.error(f"Unexpected error: {e}")
     return None
 
-# Function to scrape a webpage
 def scrape_website():
     # Allow user to choose headless mode
     headless_mode = input("Run in headless mode? (yes/no): ").strip().lower() == "yes"
