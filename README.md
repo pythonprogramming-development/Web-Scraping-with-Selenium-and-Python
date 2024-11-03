@@ -2,6 +2,9 @@
 
 Enter the URL of the website and the class element and the relevant data gets downloaded in the format [ csv/json ], based upon what did the user selected.
 
+## Aim :
+To learn ab0ut webscrapping with a hands-on experience.
+
 ## Project Usage
 
 ### Requirements
