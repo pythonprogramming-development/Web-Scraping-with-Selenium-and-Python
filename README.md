@@ -19,10 +19,10 @@ To learn ab0ut webscrapping with a hands-on experience.
 #### Exampe
 
 Project getting used, example:
-!(CMD)[images/1ss.png]
+![CMD](images/1ss.png)
 
 JSON File so formed:
-!(Result JSON file)[images/result_file.png]
+![Result JSON file](images/result_file.png)
 
 
 ## License
