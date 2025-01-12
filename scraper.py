@@ -1,37 +1,5 @@
-# from selenium import webdriver 
-# from selenium.webdriver.chrome.options import Options
-# from selenium.webdriver.common.by import By
-
-# # initialize an instance of the chrome driver (browser)
-# driver = webdriver.Chrome()
-
-
-# # enable headless mode in Selenium
-# options = Options()
-# # enable headless mode
-# options.headless = True
-
-# options.add_argument('--headless=new')
-
-# driver = webdriver.Chrome(
-#     options=options, 
-#     # other properties...
-# )
-
-# # visit your target site
-# driver.get('https://scrapingclub.com/')
-
-# # scraping logic...
-# exercise1_card = driver.find_element(By.CLASS_NAME, 'w-full.rounded.border') #w-full rounded border
-# # or
-# # exercise1_card = driver.find_element(By.CSS_SELECTOR, '.w-full.rounded.border')
-# # or
-# # exercise1_card = driver.find_element(By.XPATH, '/html/body/div[3]/div[2]/div/div[1]')
-
-# print(exercise1_card)
-# # release the resources allocated by Selenium and shut down the browser
-# driver.quit()
-
+import re
+from urllib.parse import urlparse
 import time
 import csv
 import json
@@ -41,30 +9,20 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# initialize an instance of the chrome driver (browser)
-options = Options()
-options.headless = True
-options.add_argument('--headless=new')
 
-driver = webdriver.Chrome(options=options)
+# Function to validate URLs
+def is_valid_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
 
-try:
-    # visit your target site
-    driver.get('https://scrapingclub.com/')
 
-    # wait for the element to be present
-    wait = WebDriverWait(driver, 10)
-    exercise1_card = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'w-full.rounded.border')))
-    
-    print(exercise1_card.text)
-except Exception as e:
-    print(f"An error occurred: {e}")
-finally:
-    # release the resources allocated by Selenium and shut down the browser
-    driver.quit()
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from bs4 import BeautifulSoup
+# Function to sanitize locator inputs
+def sanitize_locator(locator):
+    return re.sub(r"[^a-zA-Z0-9.#\[\]]", "", locator)
+
 
 # Function to initialize the Selenium WebDriver
 def init_driver(headless=True):
@@ -76,6 +34,7 @@ def init_driver(headless=True):
     chrome_options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(options=chrome_options)
     return driver
+
 
 # Function to find all elements using different strategies
 def find_elements(driver, strategy, value):
@@ -91,51 +50,53 @@ def find_elements(driver, strategy, value):
             raise ValueError(
                 f"Invalid strategy '{strategy}'. Use 'class_name', 'css_selector', or 'xpath'."
             )
-
         return wait.until(EC.presence_of_all_elements_located(locator))
-
     except Exception as e:
-        error_message = f"Error finding elements using {strategy} with value '{value}': {e}"
-        print(error_message)
+        print(f"Error finding elements using {strategy} with value '{value}': {e}")
         return []
 
-# Function to scrape a webpage and export data
+
+# Main scraping function
 def scrape_website():
+    # Initialize driver
     driver = init_driver(headless=True)
-    websiteInp = input("Enter URL for desired website to scrape: ") #exapmle : https://www.flipkart.com/search?q=laptop&otracker=search&otracker1=search&marketplace=FLIPKART&as-show=on&as=off
-    elementInp = input("Enter the class_name of the desired element to scrape: ") #example : KzDlHZ
+
+    while True:
+        websiteInp = input("Enter URL for desired website to scrape: ")
+        if is_valid_url(websiteInp):
+            break
+        else:
+            print("Invalid URL. Please enter a valid URL.")
+
+    elementInp = input(
+        "Enter the class_name of the desired element to scrape (alphanumeric, ., #, [] allowed): "
+    )
+    sanitized_element = sanitize_locator(elementInp)
     export_format = input("Choose export format (CSV or JSON): ").strip().lower()
 
     try:
         # Open the target website
         driver.get(websiteInp)
-        time.sleep(5)  # Adding a 5-second wait after loading the page
 
-        # Find elements
-        elements = find_elements(driver, "class_name", elementInp)
-  # testWebsite = "https://scrapingclub.com/"
-    # testElement = "w-full.rounded.border"
-# exercise1_card = find_element(driver, "class_name", elementInp) # Use testElement here instead of elementInp
-   # you can also use:
-        # exercise1_card = find_element(driver, 'css_selector', '.w-full.rounded.border')
-        # exercise1_card = find_element(driver, 'xpath', '/html/body/div[3]/div[2]/div/div[1]')
-        
+        # Wait and scrape elements
+        elements = find_elements(driver, "class_name", sanitized_element)
+
         # Extract and format data
         data = [{"content": el.text} for el in elements if el.text]
-        
+
         if not data:
             print("No data found to export.")
             return
 
-        # Export data
-        if export_format == 'csv':
+        # Export data to the chosen format
+        if export_format == "csv":
             with open("scraped_data.csv", "w", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(f, fieldnames=["content"])
                 writer.writeheader()
                 writer.writerows(data)
             print("Data exported to 'scraped_data.csv'.")
 
-        elif export_format == 'json':
+        elif export_format == "json":
             with open("scraped_data.json", "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
             print("Data exported to 'scraped_data.json'.")
@@ -143,12 +104,12 @@ def scrape_website():
         else:
             print("Invalid format selected. Please choose CSV or JSON.")
 
-    except ValueError as e:
-        print(e)
     except Exception as e:
         print(f"An error occurred: {e}")
+
     finally:
         driver.quit()
+
 
 if __name__ == "__main__":
     scrape_website()
